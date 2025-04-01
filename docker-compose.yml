@@ -1,0 +1,33 @@
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka-broker
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+
+  event-service:
+    build: .
+    container_name: event-service
+    ports:
+      - "5000:5000"
+    depends_on:
+      - kafka
+    environment:
+      MONGO_URI: "mongodb+srv://abdallaebrahim51:OGzzHeQgOrFSIVVc@eventservice.gafnnht.mongodb.net/"
+      KAFKA_BROKER: "kafka:9092"
